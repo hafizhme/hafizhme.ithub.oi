@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Penghitungan Matrix</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+     max-width: 800px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        border-bottom: 1px solid #110101;
+        padding-bottom: 10px;
+    }
+
+    h2 {
+        margin-top: 30px;
+    }
+
+    abel {
+        font-weight: bold;
+    } 
+
+    input[type="number"] {
+        width: 50px;
+        margin-left: 10px;
+    }
+
+    .matrix-input {
+        width: 50px;
+        height: 30px;
+        text-align: center;
+    }
+
+    .matrix-input:focus {
+        background-color: #f5f5f5;
+    }
+
+    .matrix-created {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    .error-message {
+        color: red;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    table {
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+    }
+
+    .result {
+        margin-top: 20px;
+        font-weight: bold;
+        text-align: center;
+        padding-bottom: 8px;
+    }
+
+    .result-table {
+        margin: auto;
+        border-collapse: separate;
+        margin-top: 10px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .button-container {
+        text-align: center;
+        margin-top: 20px;
+        border-bottom: 1px solid #110101;
+        padding-bottom: 10px;
+    } 
+
+    .button {
+        background-color: #350ec0;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #666;
+    }
+
+    .matrix-row {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .matrix-created {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container"></div>
+  <h1>Penghitungan Matrix</h1>
+
+  <div class="input-section">
+    <h2>Input Matrix A:</h2>
+    <div>
+      <label>Baris: </label>
+      <input type="number" id="rowsA" min="1" required>
+      <label>Kolom: </label>
+      <input type="number" id="columnsA" min="1" required>
+      <button onclick="createMatrixInput('rowsA', 'columnsA', 'matrixA')">Create Matrix A</button>
+    </div>
+    <div id="matrixA"></div>
+  </div>
+  
+  <div class="input-section">
+    <h2>Input Matrix B:</h2>
+    <div>
+      <label>Baris: </label>
+      <input type="number" id="rowsB" min="1" required>
+      <label>Kolom: </label>
+      <input type="number" id="columnsB" min="1" required>
+      <button onclick="createMatrixInput('rowsB', 'columnsB', 'matrixB')">Create Matrix B</button>
+    </div>
+    <div id="matrixB"></div>
+  </div>
+  
+  <div class="button-container">
+    <button onclick="performMatrixOperations()">Hitung</button>
+  </div>
+  
+  <div class="result">
+    <h2>Penjumlahan Matrix (A + B):</h2>
+    <table class="result-table">
+      <tbody id="matrixSum"></tbody>
+    </table>
+  </div>
+  
+  <div class="result">
+    <h2>Pengurangan Matrix (A - B):</h2>
+    <table class="result-table">
+      <tbody id="matrixDiff"></tbody>
+    </table>
+  </div>
+  
+  <div class="result"> 
+    <h2>Perkalian Matrix (A * B):</h2>
+    <table class="result-table">
+      <tbody id="matrixProduct"></tbody>
+    </table>
+  </div>  
+  
+  <div id="errorMessages" class="error-messages"></div>
+
+  <script>
+    // Fungsi untuk membuat input matriks dengan ukuran yang ditentukan
+    function createMatrixInput(rowsId, columnsId, matrixId) {
+      var rows = document.getElementById(rowsId).value;
+      var columns = document.getElementById(columnsId).value;
+
+        if (rows <= 0 || columns <= 0) {
+         displayErrorMessage('Invalid number of rows or columns.');
+            return;
+        }
+
+        var matrixElement = document.getElementById(matrixId);
+        matrixElement.innerHTML = '';
+
+        for (var i = 0; i < rows; i++) {
+         var row = document.createElement('div');
+            row.className = 'matrix-row';
+
+            for (var j = 0; j < columns; j++) {
+             var input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'matrix-input';
+                row.appendChild(input);
+            }
+            matrixElement.appendChild(row);
+        }
+      matrixElement.classList.add('matrix-created');
+    }
+
+    // Fungsi untuk mendapatkan nilai matriks dari input pengguna
+    function getMatrixValues(matrixId) {
+      var matrixElement = document.getElementById(matrixId);
+      var matrixRows = matrixElement.getElementsByClassName('matrix-row');
+      var matrix = [];
+
+        for (var i = 0; i < matrixRows.length; i++) {
+            var rowInputs = matrixRows[i].getElementsByClassName('matrix-input');
+            var row = [];
+
+            for (var j = 0; j < rowInputs.length; j++) {
+                var value = Number(rowInputs[j].value);
+                row.push(value);
+             }
+         matrix.push(row);
+        }
+      return matrix;
+    }
+
+    // Fungsi untuk menampilkan matriks ke dalam elemen dengan id yang diberikan
+    function displayMatrix(matrix, rows, columns, matrixId) {
+      var matrixElement = document.getElementById(matrixId);
+      matrixElement.innerHTML = '';
+
+        for (var i = 0; i < rows; i++) {
+            var row = document.createElement('tr');
+            for (var j = 0; j < columns; j++) {
+                var cell = document.createElement('td');
+                cell.textContent = matrix[i][j];
+                row.appendChild(cell);
+            }
+            matrixElement.appendChild(row);
+        }
+    }
+
+    // Fungsi untuk menjumlahkan dua matriks
+    function addMatrices(matrixA, matrixB, rows, columns) {
+      var result = [];
+
+        for (var i = 0; i < rows; i++) {
+         var row = [];
+            for (var j = 0; j < columns; j++) {
+                var sum = matrixA[i][j] + matrixB[i][j];
+                row.push(sum);
+            }
+            result.push(row);
+        }
+      return result;
+    }
+
+    // Fungsi untuk mengurangkan dua matriks
+    function subtractMatrices(matrixA, matrixB, rows, columns) {
+      var result = [];
+
+        for (var i = 0; i < rows; i++) {
+         var row = [];
+            for (var j = 0; j < columns; j++) {
+                var diff = matrixA[i][j] - matrixB[i][j];
+                row.push(diff);
+            }
+            result.push(row);
+        }
+      return result;
+    }
+
+    // Fungsi untuk mengalikan dua matriks
+    function multiplyMatrices(matrixA, matrixB, rowsA, columnsA, columnsB) {
+      var result = [];
+
+        for (var i = 0; i < rowsA; i++) {
+            var row = [];
+            for (var j = 0; j < columnsB; j++) {
+                var sum = 0;
+                for (var k = 0; k < columnsA; k++) {
+                    sum += matrixA[i][k] * matrixB[k][j];
+                }
+                row.push(sum);
+            }
+            result.push(row);
+        }
+        return result;
+    }
+
+    // Fungsi untuk membersihkan pesan kesalahan
+    function clearErrorMessages() {
+      var errorMessagesElement = document.getElementById('errorMessages');
+      errorMessagesElement.innerHTML = '';
+    }
+
+    // Fungsi untuk menampilkan pesan kesalahan
+    function displayErrorMessage(message) {
+      var errorMessagesElement = document.getElementById('errorMessages');
+      var errorMessageElement = document.createElement('p');
+      errorMessageElement.className = 'error-message';
+      errorMessageElement.textContent = message;
+      errorMessagesElement.appendChild(errorMessageElement);
+    }
+
+    // Fungsi untuk melakukan operasi matriks berdasarkan input pengguna
+    function performMatrixOperations() {
+        clearErrorMessages();
+
+        const rowsA = parseInt(document.getElementById('rowsA').value);
+        const columnsA = parseInt(document.getElementById('columnsA').value);
+
+        if (rowsA <= 0 || columnsA <= 0 || isNaN(rowsA) || isNaN(columnsA)) {
+            displayErrorMessage('Invalid number of rows or columns for Matrix A.');
+            return;
+        }
+
+        const rowsB = parseInt(document.getElementById('rowsB').value);
+        const columnsB = parseInt(document.getElementById('columnsB').value);
+
+        if (rowsB <= 0 || columnsB <= 0 || isNaN(rowsB) || isNaN(columnsB)) {
+            displayErrorMessage('Invalid number of rows or columns for Matrix B.');
+            return;
+        }
+
+        const matrixA = getMatrixValues('matrixA');
+        const matrixB = getMatrixValues('matrixB');
+
+        if (
+            matrixA.length !== rowsA ||
+            matrixB.length !== rowsB ||
+            matrixA[0].length !== columnsA ||
+            matrixB[0].length !== columnsB
+         ) {
+            displayErrorMessage('Invalid input for Matrix A or Matrix B.');
+            return;
+        }
+
+        const matrixSum = addMatrices(matrixA, matrixB, rowsA, columnsA);
+        displayMatrix(matrixSum, rowsA, columnsA, 'matrixSum');
+
+        const matrixDiff = subtractMatrices(matrixA, matrixB, rowsA, columnsA);
+        displayMatrix(matrixDiff, rowsA, columnsA, 'matrixDiff');
+
+        if (columnsA !== rowsB) {
+            displayErrorMessage('Matrix A and Matrix B cannot be multiplied.');
+            return;
+        }
+
+        const matrixProduct = multiplyMatrices(matrixA, matrixB, rowsA, columnsA, columnsB);
+        displayMatrix(matrixProduct, rowsA, columnsB, 'matrixProduct');
+    }
+  </script>
+</body>
+</html>
